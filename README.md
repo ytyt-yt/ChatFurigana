@@ -8,12 +8,11 @@ Convert Kanji to Furigana (振り仮名) in japanese words using [ChatGPT](https
 pip install -r requirements.txt
 ```
 
-Save your authentication [config](https://github.com/acheong08/ChatGPT) to `~/.config/revChatGPT/config.json`.
+Set enviroment variable `OPENAI_API_KEY`.
 
 ### Example
 ```python
-    cf = ChatFurigana()
-    cf.build_bot()
-    print(cf.furigana(["振り仮名", "食べる", "飲む", "歩く"]))
+    res = chatfurigana(["振り仮名", "食べる", "飲む", "歩く"])
+    print(res)
     # --> ['振[ふ]り仮[が]名[な]', '食[た]べる', '飲[の]む', '歩[ある]く']
 ```

@@ -1,38 +1,28 @@
+import os
 import json
-from pathlib import Path
-from revChatGPT.V1 import Chatbot
+import openai
 
 
-CONFIG_PATH = Path('~/.config/revChatGPT/config.json').expanduser()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 PROMPT = """
 I will give you a list of janpanese words, please label each Kanji with Furigana form one by one.
-
-For example, given input ["行く", "見る", "多い"], you should return ["行[い]く", "見[み]る", "多[おお]い"]
-
-Let's begin with
-
-["私", "仕事"]
-"""
+"""  # noqa
 
 
-class ChatFurigana():
-
-    def build_bot(self):
-        with CONFIG_PATH.open() as f:
-            config = json.load(f)
-        self.chatbot = Chatbot(config)
-        for _ in self.chatbot.ask(PROMPT):
-            pass
-
-    def furigana(self, words):
-        q = json.dumps(words, ensure_ascii=False)
-        message = ""
-        for data in self.chatbot.ask(q):
-            message = data["message"]
-        return json.loads(message)
+def chatfurigana(words):
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": PROMPT},
+            {"role": "user", "content": '["行く", "見る", "多い"]'},
+            {"role": "assistant", "content": '["行[い]く", "見[み]る", "多[おお]い"]'},
+            {"role": "user", "content": json.dumps(words, ensure_ascii=False)},
+        ]
+    )
+    return json.loads(completion['choices'][0]['message']['content'])
 
 
-if __name__ == '__main__':
-    cf = ChatFurigana()
-    cf.build_bot()
-    print(cf.furigana(["振り仮名", "食べる", "飲む", "歩く"]))
+if __name__ == "__main__":
+    res = chatfurigana(["振り仮名", "食べる", "飲む", "歩く"])
+    print(res)
